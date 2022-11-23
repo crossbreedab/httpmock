@@ -6,33 +6,56 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func NewMockHandler(t assert.TestingT) *MockHandler {
+	return &MockHandler{t: t}
+}
 
 // MockHandler is a httpmock.Handler that uses github.com/stretchr/testify/mock.
 type MockHandler struct {
 	mock.Mock
+	t assert.TestingT
 }
 
 // Handle makes this implement the Handler interface.
 func (m *MockHandler) Handle(method, path string, body []byte) Response {
+	defer func() {
+		assert.Nil(m.t, recover())
+	}()
+
 	args := m.Called(method, path, body)
 	return args.Get(0).(Response)
+}
+
+func NewMockHandlerWithHeaders(t assert.TestingT) *MockHandlerWithHeaders {
+	return &MockHandlerWithHeaders{t: t}
 }
 
 // MockHandlerWithHeaders is a httpmock.Handler that uses github.com/stretchr/testify/mock.
 type MockHandlerWithHeaders struct {
 	mock.Mock
+	t assert.TestingT
 }
 
 // Handle makes this implement the Handler interface.
 func (m *MockHandlerWithHeaders) Handle(method, path string, body []byte) Response {
+	defer func() {
+		assert.Nil(m.t, recover())
+	}()
+
 	args := m.Called(method, path, body)
 	return args.Get(0).(Response)
 }
 
 // HandleWithHeaders makes this implement the HandlerWithHeaders interface.
 func (m *MockHandlerWithHeaders) HandleWithHeaders(method, path string, headers http.Header, body []byte) Response {
+	defer func() {
+		assert.Nil(m.t, recover())
+	}()
+
 	args := m.Called(method, path, headers, body)
 	return args.Get(0).(Response)
 }
